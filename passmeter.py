@@ -17,6 +17,8 @@ def main():
     sAlphas = "abcdefghijklmnopqrstuvwxyz"
     sNumerics = "01234567890"
     sSymbols = ")!@#$%^&*()"
+    nMinPwdLen = 8
+    nMinReqChars = 4
 
     # check argv exists or not
     pwd = sys.argv[1]
@@ -144,7 +146,49 @@ def main():
         nScore -= nConsecNumber * nMultConsecNumber
         sConsecNumber = "-" + str(nConsecNumber * nMultConsecNumber)
 
-    # line 212 http://www.passwordmeter.com/js/pwdmeter.js
+    if nSeqAlpha > 0:
+        nScore -= nSeqAlpha * nMultSeqAlpha
+        sSeqAlpha = "-" + str(nSeqAlpha * nMultSeqAlpha)
+
+    if nSeqNumber > 0:
+        nScore -= nSeqNumber * nMultSeqNumber
+        sSeqNumber = "-" + str(nSeqNumber * nMultSeqNumber)
+
+    if nSeqSymbol > 0:
+        nScore -= nSeqSymbol * nMultSeqSymbol
+        sSeqSymbol = "-" + str(nSeqSymbol * nMultSeqSymbol)
+
+    # Determine if mandatory requirements have been met
+    arrChars = [nAlphaUC, nAlphaLC, nNumber, nSymbol]
+    for c in arrChars:
+        if c > 0:
+            nRequirements += 1
+
+    if nLength >= nMinPwdLen:
+        nRequirements += 1
+        if nRequirements >= nMinReqChars:
+            nScore += nRequirements * 2
+            sRequirements = "+" + str(nRequirements * 2)
+
+    # Determine final score and complexity
+    if nScore > 100:
+        nScore = 100
+    if nScore < 0:
+        nScore = 0
+
+    if nScore >= 0 and nScore < 20:
+        sComplexity = "Very Weak"
+    elif nScore >= 20 and nScore < 40:
+        sComplexity = "Weak"
+    elif nScore >= 40 and nScore < 60:
+        sComplexity = "Good"
+    elif nScore >= 60 and nScore < 80:
+        sComplexity = "Strong"
+    elif nScore >= 80 and nScore <= 100:
+        sComplexity = "Very Strong"
+
+    print(nScore)
+    print(sComplexity)
 
 
 if __name__ == '__main__':
