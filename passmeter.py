@@ -7,10 +7,17 @@ from rich.text import Text
 import sys
 import re
 import math
+import argparse
+
+
+def parseArgs():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-p', '--password', nargs=1, help='Password')
+    parser.add_argument('-s', '--score-only', action='store_true', help='Only show score number as output')
+    return parser.parse_args()
 
 
 def calcResult(score):
-    # Calculate final score and complexity
     if score < 20:
         return str(max(score, 0)) + "%", "Very Weak"
     if score >= 20 and score < 40:
@@ -33,6 +40,8 @@ def setBonuscolor(score):
 
 
 def main():
+    args = parseArgs()
+
     nScore = nLength = nAlphaUC = nAlphaLC = nNumber = nSymbol = nMidChar = nRequirements = nAlphasOnly = nNumbersOnly = nUnqChar = nRepChar = nRepInc = nConsecAlphaUC = nConsecAlphaLC = nConsecNumber = nConsecSymbol = nConsecCharType = nSeqAlpha = nSeqNumber = nSeqSymbol = nSeqChar = 0
     nMultMidChar = nMultRequirements = nMultAlphaUC = nMultAlphaLC = nMultConsecAlphaUC = nMultConsecAlphaLC = nMultConsecNumber = 2
     nMultSeqAlpha = nMultSeqNumber = nMultSeqSymbol = 3
@@ -45,8 +54,13 @@ def main():
     sSymbols = ")!@#$%^&*()"
     nMinPwdLen = 8
     nMinReqChars = 4
-    #  pwd = getpass()
-    pwd = 'pa@sswordX!12'
+    if args.password:
+        pwd = args.password[0]
+    else:
+        try:
+            pwd = getpass()
+        except KeyboardInterrupt:
+            sys.exit(1)
     nLength = len(pwd)
     arrPwd = list(pwd)
     arrPwdLen = len(arrPwd)
@@ -151,7 +165,7 @@ def main():
         nAlphasOnly = nLength
         sAlphasOnly = nLength * -1
 
-    if nAlphaLC == 0 and nAlphaUC == 0 and nSymbol == 0 and nNumber == 0:
+    if nAlphaLC == 0 and nAlphaUC == 0 and nSymbol == 0 and nNumber > 0:
         nScore -= nLength
         nNumbersOnly = nLength
         sNumbersOnly = nLength * -1
@@ -196,31 +210,37 @@ def main():
             nScore += nRequirements * nMultRequirements
             sRequirements = nRequirements * nMultRequirements
 
-    table = Table()
-    table.add_column("", style="cyan", no_wrap=True)
-    table.add_column("Rate", style="white")
-    table.add_column("Count", justify="right", style="yellow")
-    table.add_column("Bonus", justify="right", style="green")
-    table.add_row("Number of Characters", "+(n*" + str(nMultLength) + ")", str(nLength), setBonuscolor(sLength))
-    table.add_row("Uppercase Letters", "+((len-n)*" + str(nMultAlphaUC) + ")", str(nAlphaUC), setBonuscolor(sAlphaUC))
-    table.add_row("Lowercase Letters", "+((len-n)*" + str(nMultAlphaLC) + ")", str(nAlphaLC), setBonuscolor(sAlphaLC))
-    table.add_row("Numbers", "+(n*" + str(nMultNumber) + ")", str(nNumber), setBonuscolor(sNumber))
-    table.add_row("Symbols", "+(n*" + str(nMultSymbol) + ")", str(nSymbol), setBonuscolor(sSymbol))
-    table.add_row("Middle Numbers of Symbols", "+(n*" + str(nMultMidChar) + ")", str(nMidChar), setBonuscolor(sMidChar))
-    table.add_row("Requirements", "+(n*" + str(nMultRequirements) + ")", str(nRequirements), setBonuscolor(sRequirements))
-    table.add_row("Letters Only", "-n", str(nAlphasOnly), setBonuscolor(sAlphasOnly))
-    table.add_row("Numbers Only", "-n", str(nNumbersOnly), setBonuscolor(sNumbersOnly))
-    table.add_row("Repeat Characters (Case Insensitive)", "-", str(nRepChar), setBonuscolor(sRepChar))
-    table.add_row("Consecutive Uppercase Letters", "-(n*" + str(nMultConsecAlphaUC) + ")", str(nConsecAlphaUC), setBonuscolor(sConsecAlphaUC))
-    table.add_row("Consecutive Lowercase Letters", "-(n*" + str(nMultConsecAlphaLC) + ")", str(nConsecAlphaLC), setBonuscolor(sConsecAlphaLC))
-    table.add_row("Consecutive Numbers", "-(n*" + str(nMultConsecNumber) + ")", str(nConsecNumber), setBonuscolor(sConsecNumber))
-    table.add_row("Sequential Letters (3+)", "-(n*" + str(nMultSeqAlpha) + ")", str(nSeqAlpha), setBonuscolor(sSeqAlpha))
-    table.add_row("Sequential Numbers (3+)", "-(n*" + str(nMultSeqNumber) + ")", str(nSeqNumber), setBonuscolor(sSeqNumber))
-    table.add_row("Sequential Symbols (3+)", "-(n*" + str(nMultSeqSymbol) + ")", str(nSeqSymbol), setBonuscolor(sSeqSymbol))
+    fScore, fComplexity = calcResult(nScore)
+    if args.score_only:
+        print(fScore)
+    else:
+        print("Score: " + fScore)
+        print("Complexity: " + fComplexity)
 
-    print(calcResult(nScore))
-    console = Console()
-    console.print(table)
+        table = Table()
+        table.add_column("", style="cyan")
+        table.add_column("Rate", style="white")
+        table.add_column("Count", justify="right", style="yellow")
+        table.add_column("Bonus", justify="right", style="green")
+        table.add_row("Number of Characters", "+(n*" + str(nMultLength) + ")", str(nLength), setBonuscolor(sLength))
+        table.add_row("Uppercase Letters", "+((len-n)*" + str(nMultAlphaUC) + ")", str(nAlphaUC), setBonuscolor(sAlphaUC))
+        table.add_row("Lowercase Letters", "+((len-n)*" + str(nMultAlphaLC) + ")", str(nAlphaLC), setBonuscolor(sAlphaLC))
+        table.add_row("Numbers", "+(n*" + str(nMultNumber) + ")", str(nNumber), setBonuscolor(sNumber))
+        table.add_row("Symbols", "+(n*" + str(nMultSymbol) + ")", str(nSymbol), setBonuscolor(sSymbol))
+        table.add_row("Middle Numbers of Symbols", "+(n*" + str(nMultMidChar) + ")", str(nMidChar), setBonuscolor(sMidChar))
+        table.add_row("Requirements", "+(n*" + str(nMultRequirements) + ")", str(nRequirements), setBonuscolor(sRequirements))
+        table.add_row("Letters Only", "-n", str(nAlphasOnly), setBonuscolor(sAlphasOnly))
+        table.add_row("Numbers Only", "-n", str(nNumbersOnly), setBonuscolor(sNumbersOnly))
+        table.add_row("Repeat Characters (Case Insensitive)", "-", str(nRepChar), setBonuscolor(sRepChar))
+        table.add_row("Consecutive Uppercase Letters", "-(n*" + str(nMultConsecAlphaUC) + ")", str(nConsecAlphaUC), setBonuscolor(sConsecAlphaUC))
+        table.add_row("Consecutive Lowercase Letters", "-(n*" + str(nMultConsecAlphaLC) + ")", str(nConsecAlphaLC), setBonuscolor(sConsecAlphaLC))
+        table.add_row("Consecutive Numbers", "-(n*" + str(nMultConsecNumber) + ")", str(nConsecNumber), setBonuscolor(sConsecNumber))
+        table.add_row("Sequential Letters (3+)", "-(n*" + str(nMultSeqAlpha) + ")", str(nSeqAlpha), setBonuscolor(sSeqAlpha))
+        table.add_row("Sequential Numbers (3+)", "-(n*" + str(nMultSeqNumber) + ")", str(nSeqNumber), setBonuscolor(sSeqNumber))
+        table.add_row("Sequential Symbols (3+)", "-(n*" + str(nMultSeqSymbol) + ")", str(nSeqSymbol), setBonuscolor(sSeqSymbol))
+
+        console = Console()
+        console.print(table)
 
 
 if __name__ == '__main__':
