@@ -42,18 +42,30 @@ def setBonuscolor(score):
 def main():
     args = parseArgs()
 
-    nScore = nLength = nAlphaUC = nAlphaLC = nNumber = nSymbol = nMidChar = nRequirements = nAlphasOnly = nNumbersOnly = nUnqChar = nRepChar = nRepInc = nConsecAlphaUC = nConsecAlphaLC = nConsecNumber = nConsecSymbol = nConsecCharType = nSeqAlpha = nSeqNumber = nSeqSymbol = nSeqChar = 0
-    nMultMidChar = nMultRequirements = nMultAlphaUC = nMultAlphaLC = nMultConsecAlphaUC = nMultConsecAlphaLC = nMultConsecNumber = 2
-    nMultSeqAlpha = nMultSeqNumber = nMultSeqSymbol = 3
-    nMultLength = nMultNumber = 4
-    nMultSymbol = 6
-    nTmpAlphaUC = nTmpAlphaLC = nTmpNumber = nTmpSymbol = ""
-    sAlphaUC = sAlphaLC = sNumber = sSymbol = sMidChar = sRequirements = sAlphasOnly = sNumbersOnly = sRepChar = sConsecAlphaUC = sConsecAlphaLC = sConsecNumber = sSeqAlpha = sSeqNumber = sSeqSymbol = 0
+    nTmpAlphaUC = nTmpAlphaLC = nTmpNumber = ""
     sAlphas = "abcdefghijklmnopqrstuvwxyz"
     sNumerics = "01234567890"
     sSymbols = ")!@#$%^&*()"
     nMinPwdLen = 8
     nMinReqChars = 4
+    dictRule = {
+        "length": {"count": 0, "mult": 4, "score": 0, "text": "Number of Characters", "rate": "+(n*4)"},
+        "alphaUC": {"count": 0, "mult": 2, "score": 0, "text": "Uppercase Letters", "rate": "+((len-n)*2)"},
+        "alphaLC": {"count": 0, "mult": 2, "score": 0, "text": "Lowercase Letters", "rate": "+((len-n)*2)"},
+        "number": {"count": 0, "mult": 4, "score": 0, "text": "Numbers", "rate": "+(n*4)"},
+        "symbol": {"count": 0, "mult": 6, "score": 0, "text": "Symbols", "rate": "+(n*6)"},
+        "midChar": {"count": 0, "mult": 2, "score": 0, "text": "Middle Numbers of Symbols", "rate": "+(n*2)"},
+        "requirements": {"count": 0, "mult": 0, "score": 0, "text": "Requirements", "rate": "+(n*2)"},
+        "alphasOnly": {"count": 0, "mult": -1, "score": 0, "text": "Letters Only", "rate": "-n"},
+        "numbersOnly": {"count": 0, "mult": -1, "score": 0, "text": "Numbers Only", "rate": "-n"},
+        "repChar": {"count": 0, "mult": -1, "score": 0, "text": "Repeat Characters", "rate": "-?"},
+        "consecAlphaUC": {"count": 0, "mult": -2, "score": 0, "text": "Consecutive Uppercase Letters", "rate": "-(n*2)"},
+        "consecAlphaLC": {"count": 0, "mult": -2, "score": 0, "text": "Consecutive Lowercase Letters", "rate": "-(n*2)"},
+        "consecNumber": {"count": 0, "mult": -2, "score": 0, "text": "Consecutive Numbers", "rate": "-(n*2)"},
+        "seqAlpha": {"count": 0, "mult": -3, "score": 0, "text": "Sequential Letters (3+)", "rate": "-(n*3)"},
+        "seqNumber": {"count": 0, "mult": -3, "score": 0, "text": "Sequential Numbers (3+)", "rate": "-(n*3)"},
+        "seqSymbol": {"count": 0, "mult": -3, "score": 0, "text": "Sequential Symbols (3+)", "rate": "-(n*3)"}
+    }
     if args.password:
         pwd = args.password[0]
     else:
@@ -61,46 +73,38 @@ def main():
             pwd = getpass()
         except KeyboardInterrupt:
             sys.exit(1)
-    nLength = len(pwd)
+    dictRule["length"]["count"] = len(pwd)
     arrPwd = list(pwd)
     arrPwdLen = len(arrPwd)
-    sLength = nLength * nMultLength
-    nScore = nLength * nMultLength
+    score = 0
 
     # Check Uppercase, Lowercase, Numeric and Symbol
+    nRepInc = 0
     for a in range(0, arrPwdLen):
         if re.match(r'[A-Z]', arrPwd[a]):
             if nTmpAlphaUC != "":
                 if (nTmpAlphaUC + 1) == a:
-                    nConsecAlphaUC += 1
-                    nConsecCharType += 1
+                    dictRule["consecAlphaUC"]["count"] += 1
             nTmpAlphaUC = a
-            nAlphaUC += 1
+            dictRule["alphaUC"]["count"] += 1
         elif re.match(r'[a-z]', arrPwd[a]):
             if nTmpAlphaLC != "":
                 if (nTmpAlphaLC + 1) == a:
-                    nConsecAlphaLC += 1
-                    nConsecCharType += 1
+                    dictRule["consecAlphaLC"]["count"] += 1
             nTmpAlphaLC = a
-            nAlphaLC += 1
+            dictRule["alphaLC"]["count"] += 1
         elif re.match(r'[0-9]', arrPwd[a]):
             if a > 0 and a < (arrPwdLen - 1):
-                nMidChar += 1
+                dictRule["midChar"]["count"] += 1
             if nTmpNumber != "":
                 if (nTmpNumber + 1) == a:
-                    nConsecNumber += 1
-                    nConsecCharType += 1
+                    dictRule["consecNumber"]["count"] += 1
             nTmpNumber = a
-            nNumber += 1
+            dictRule["number"]["count"] += 1
         elif re.match(r'[^a-zA-Z0-9_]', arrPwd[a]):
             if a > 0 and a < (arrPwdLen - 1):
-                nMidChar += 1
-            if nTmpSymbol != "":
-                if (nTmpSymbol+1) == a:
-                    nConsecSymbol += 1
-                    nConsecCharType += 1
-            nTmpSymbol = a
-            nSymbol += 1
+                dictRule["midChar"]["count"] += 1
+            dictRule["symbol"]["count"] += 1
 
         # Check for repeat characters
         bCharExists = False
@@ -110,107 +114,62 @@ def main():
                 nRepInc += abs(arrPwdLen/(b-a))
 
         if bCharExists:
-            nRepChar += 1
-            nUnqChar = arrPwdLen - nRepChar
+            dictRule["repChar"]["count"] += 1
+            nUnqChar = arrPwdLen - dictRule["repChar"]["count"]
             nRepInc = math.ceil(nRepInc/nUnqChar) if nUnqChar else math.ceil(nRepInc)
+    dictRule["repChar"]["score"] = nRepInc * dictRule["repChar"]["mult"]
+
+    if dictRule["alphaLC"]["count"] > 0 and dictRule["alphaLC"]["count"] < dictRule["length"]["count"]:
+        dictRule["alphaLC"]["score"] = (dictRule["length"]["count"] - dictRule["alphaLC"]["count"]) * dictRule["alphaLC"]["mult"]
+    if dictRule["alphaUC"]["count"] > 0 and dictRule["alphaUC"]["count"] < dictRule["length"]["count"]:
+        dictRule["alphaUC"]["score"] = (dictRule["length"]["count"] - dictRule["alphaUC"]["count"]) * dictRule["alphaUC"]["mult"]
 
     # Check for sequential alpha string patterns (forward and reverse)
     for s in range(0, 24):
         sFwd = sAlphas[s:s+3]
         sRev = sFwd[::-1]
         if pwd.lower().find(sFwd) != -1 or pwd.lower().find(sRev) != -1:
-            nSeqAlpha += 1
-            nSeqChar += 1
+            dictRule["seqAlpha"]["count"] += 1
 
     # Check for sequential numeric string patterns (forward and reverse)
     for s in range(0, 9):
         sFwd = sNumerics[s:s+3]
         sRev = sFwd[::-1]
         if pwd.lower().find(sFwd) != -1 or pwd.lower().find(sRev) != -1:
-            nSeqNumber += 1
-            nSeqChar += 1
+            dictRule["seqNumber"]["count"] += 1
 
     # Check for sequential symbol string patterns (forward and reverse)
     for s in range(0, 9):
         sFwd = sSymbols[s:s+3]
         sRev = sFwd[::-1]
         if pwd.lower().find(sFwd) != -1 or pwd.lower().find(sRev) != -1:
-            nSeqSymbol += 1
-            nSeqChar += 1
-
-    # General point assignment
-    if nAlphaUC > 0 and nAlphaUC < nLength:
-        nScore += (nLength - nAlphaUC) * nMultAlphaUC
-        sAlphaUC = (nLength - nAlphaUC) * nMultAlphaUC
-
-    if nAlphaLC > 0 and nAlphaLC < nLength:
-        nScore += (nLength - nAlphaLC) * nMultAlphaLC
-        sAlphaLC = (nLength - nAlphaLC) * nMultAlphaLC
-
-    if nNumber > 0 and nNumber < nLength:
-        nScore += nNumber * nMultNumber
-        sNumber = nNumber * nMultNumber
-
-    if nSymbol > 0:
-        nScore += nSymbol * nMultSymbol
-        sSymbol = nSymbol * nMultSymbol
-
-    if nMidChar > 0:
-        nScore += nMidChar * nMultMidChar
-        sMidChar = nMidChar * nMultMidChar
+            dictRule["seqSymbol"]["count"] += 1
 
     # Point deductions
-    if (nAlphaLC > 0 or nAlphaUC > 0) and nSymbol == 0 and nNumber == 0:
-        nScore -= nLength
-        nAlphasOnly = nLength
-        sAlphasOnly = nLength * -1
+    if max(dictRule["alphaLC"]["count"], dictRule["alphaUC"]["count"]) > 0 and max(dictRule["symbol"]["count"], dictRule["number"]["count"]) == 0:
+        dictRule["alphasOnly"]["count"] = dictRule["length"]["count"]
 
-    if nAlphaLC == 0 and nAlphaUC == 0 and nSymbol == 0 and nNumber > 0:
-        nScore -= nLength
-        nNumbersOnly = nLength
-        sNumbersOnly = nLength * -1
-
-    if nRepChar > 0:
-        nScore -= nRepInc
-        sRepChar = nRepInc * -1
-
-    if nConsecAlphaUC > 0:
-        nScore -= nConsecAlphaUC * nMultConsecAlphaUC
-        sConsecAlphaUC = nConsecAlphaUC * nMultConsecAlphaUC * -1
-
-    if nConsecAlphaLC > 0:
-        nScore -= nConsecAlphaLC * nMultConsecAlphaLC
-        sConsecAlphaLC = nConsecAlphaLC * nMultConsecAlphaLC * -1
-
-    if nConsecNumber > 0:
-        nScore -= nConsecNumber * nMultConsecNumber
-        sConsecNumber = nConsecNumber * nMultConsecNumber * -1
-
-    if nSeqAlpha > 0:
-        nScore -= nSeqAlpha * nMultSeqAlpha
-        sSeqAlpha = nSeqAlpha * nMultSeqAlpha * -1
-
-    if nSeqNumber > 0:
-        nScore -= nSeqNumber * nMultSeqNumber
-        sSeqNumber = nSeqNumber * nMultSeqNumber * -1
-
-    if nSeqSymbol > 0:
-        nScore -= nSeqSymbol * nMultSeqSymbol
-        sSeqSymbol = nSeqSymbol * nMultSeqSymbol * -1
+    if max(dictRule["alphaLC"]["count"], dictRule["alphaUC"]["count"], dictRule["symbol"]["count"]) == 0 and dictRule["number"]["count"] > 0:
+        dictRule["numbersOnly"]["count"] = dictRule["length"]["count"]
 
     # Determine if mandatory requirements have been met
-    arrChars = [nAlphaUC, nAlphaLC, nNumber, nSymbol]
+    arrChars = ["alphaUC", "alphaLC", "number", "symbol"]
     for c in arrChars:
-        if c > 0:
-            nRequirements += 1
+        if dictRule[c]["count"] > 0:
+            dictRule["requirements"]["count"] += 1
 
-    if nLength >= nMinPwdLen:
-        nRequirements += 1
-        if nRequirements >= nMinReqChars:
-            nScore += nRequirements * nMultRequirements
-            sRequirements = nRequirements * nMultRequirements
+    if dictRule["length"]["count"] >= nMinPwdLen:
+        dictRule["requirements"]["count"] += 1
+        if dictRule["requirements"]["count"] >= nMinReqChars:
+            dictRule["requirements"]["mult"] = 2
 
-    fScore, fComplexity = calcResult(nScore)
+    for k in dictRule.keys():
+        if dictRule[k]["count"] > 0:
+            if dictRule[k]["score"] == 0:
+                dictRule[k]["score"] = dictRule[k]["count"] * dictRule[k]["mult"]
+            score += dictRule[k]["score"]
+
+    fScore, fComplexity = calcResult(score)
     if args.score_only:
         print(fScore)
     else:
@@ -222,22 +181,8 @@ def main():
         table.add_column("Rate", style="white")
         table.add_column("Count", justify="right", style="yellow")
         table.add_column("Bonus", justify="right", style="green")
-        table.add_row("Number of Characters", "+(n*" + str(nMultLength) + ")", str(nLength), setBonuscolor(sLength))
-        table.add_row("Uppercase Letters", "+((len-n)*" + str(nMultAlphaUC) + ")", str(nAlphaUC), setBonuscolor(sAlphaUC))
-        table.add_row("Lowercase Letters", "+((len-n)*" + str(nMultAlphaLC) + ")", str(nAlphaLC), setBonuscolor(sAlphaLC))
-        table.add_row("Numbers", "+(n*" + str(nMultNumber) + ")", str(nNumber), setBonuscolor(sNumber))
-        table.add_row("Symbols", "+(n*" + str(nMultSymbol) + ")", str(nSymbol), setBonuscolor(sSymbol))
-        table.add_row("Middle Numbers of Symbols", "+(n*" + str(nMultMidChar) + ")", str(nMidChar), setBonuscolor(sMidChar))
-        table.add_row("Requirements", "+(n*" + str(nMultRequirements) + ")", str(nRequirements), setBonuscolor(sRequirements))
-        table.add_row("Letters Only", "-n", str(nAlphasOnly), setBonuscolor(sAlphasOnly))
-        table.add_row("Numbers Only", "-n", str(nNumbersOnly), setBonuscolor(sNumbersOnly))
-        table.add_row("Repeat Characters (Case Insensitive)", "-", str(nRepChar), setBonuscolor(sRepChar))
-        table.add_row("Consecutive Uppercase Letters", "-(n*" + str(nMultConsecAlphaUC) + ")", str(nConsecAlphaUC), setBonuscolor(sConsecAlphaUC))
-        table.add_row("Consecutive Lowercase Letters", "-(n*" + str(nMultConsecAlphaLC) + ")", str(nConsecAlphaLC), setBonuscolor(sConsecAlphaLC))
-        table.add_row("Consecutive Numbers", "-(n*" + str(nMultConsecNumber) + ")", str(nConsecNumber), setBonuscolor(sConsecNumber))
-        table.add_row("Sequential Letters (3+)", "-(n*" + str(nMultSeqAlpha) + ")", str(nSeqAlpha), setBonuscolor(sSeqAlpha))
-        table.add_row("Sequential Numbers (3+)", "-(n*" + str(nMultSeqNumber) + ")", str(nSeqNumber), setBonuscolor(sSeqNumber))
-        table.add_row("Sequential Symbols (3+)", "-(n*" + str(nMultSeqSymbol) + ")", str(nSeqSymbol), setBonuscolor(sSeqSymbol))
+        for k in dictRule.keys():
+            table.add_row(dictRule[k]["text"], dictRule[k]["rate"], str(dictRule[k]["count"]), setBonuscolor(dictRule[k]['score']))
 
         console = Console()
         console.print(table)
