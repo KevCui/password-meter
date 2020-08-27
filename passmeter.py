@@ -5,6 +5,21 @@ import re
 import math
 
 
+def calcResult(score):
+    # Calculate final score and complexity
+    if score < 20:
+        return str(max(score, 0)) + "%", "Very Weak"
+    if score >= 20 and score < 40:
+        return str(score) + "%", "Weak"
+    if score >= 40 and score < 60:
+        return str(score) + "%", "Good"
+    if score >= 60 and score < 80:
+        return str(score) + "%", "Strong"
+    if score >= 80:
+        return str(min(score, 100)) + "%", "Very Strong"
+    return 'n/a', 'Unknown'
+
+
 def main():
     nScore = nLength = nAlphaUC = nAlphaLC = nNumber = nSymbol = nMidChar = nRequirements = nAlphasOnly = nNumbersOnly = nUnqChar = nRepChar = nRepInc = nConsecAlphaUC = nConsecAlphaLC = nConsecNumber = nConsecSymbol = nConsecCharType = nSeqAlpha = nSeqNumber = nSeqSymbol = nSeqChar = nReqChar = nMultConsecCharType = 0
     nMultRepChar = nMultConsecSymbol = 1
@@ -170,25 +185,7 @@ def main():
             nScore += nRequirements * 2
             sRequirements = "+" + str(nRequirements * 2)
 
-    # Determine final score and complexity
-    if nScore > 100:
-        nScore = 100
-    if nScore < 0:
-        nScore = 0
-
-    if nScore >= 0 and nScore < 20:
-        sComplexity = "Very Weak"
-    elif nScore >= 20 and nScore < 40:
-        sComplexity = "Weak"
-    elif nScore >= 40 and nScore < 60:
-        sComplexity = "Good"
-    elif nScore >= 60 and nScore < 80:
-        sComplexity = "Strong"
-    elif nScore >= 80 and nScore <= 100:
-        sComplexity = "Very Strong"
-
-    print(nScore)
-    print(sComplexity)
+    print(calcResult(nScore))
 
 
 if __name__ == '__main__':
