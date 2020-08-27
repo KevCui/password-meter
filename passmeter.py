@@ -1,5 +1,9 @@
 #!/usr/bin/python3
 # -*- coding: utf-8 -*-
+from getpass import getpass
+from rich.console import Console
+from rich.table import Table
+from rich.text import Text
 import sys
 import re
 import math
@@ -20,27 +24,34 @@ def calcResult(score):
     return 'n/a', 'Unknown'
 
 
+def setBonuscolor(score):
+    if score > 0:
+        return Text("+" + str(score), style="green")
+    if score < 0:
+        return Text(str(score), style="red")
+    return Text("0", style="white")
+
+
 def main():
-    nScore = nLength = nAlphaUC = nAlphaLC = nNumber = nSymbol = nMidChar = nRequirements = nAlphasOnly = nNumbersOnly = nUnqChar = nRepChar = nRepInc = nConsecAlphaUC = nConsecAlphaLC = nConsecNumber = nConsecSymbol = nConsecCharType = nSeqAlpha = nSeqNumber = nSeqSymbol = nSeqChar = nReqChar = nMultConsecCharType = 0
-    nMultRepChar = nMultConsecSymbol = 1
-    nMultMidChar = nMultRequirements = nMultConsecAlphaUC = nMultConsecAlphaLC = nMultConsecNumber = 2
-    nReqCharType = nMultAlphaUC = nMultAlphaLC = nMultSeqAlpha = nMultSeqNumber = nMultSeqSymbol = 3
+    nScore = nLength = nAlphaUC = nAlphaLC = nNumber = nSymbol = nMidChar = nRequirements = nAlphasOnly = nNumbersOnly = nUnqChar = nRepChar = nRepInc = nConsecAlphaUC = nConsecAlphaLC = nConsecNumber = nConsecSymbol = nConsecCharType = nSeqAlpha = nSeqNumber = nSeqSymbol = nSeqChar = 0
+    nMultMidChar = nMultRequirements = nMultAlphaUC = nMultAlphaLC = nMultConsecAlphaUC = nMultConsecAlphaLC = nMultConsecNumber = 2
+    nMultSeqAlpha = nMultSeqNumber = nMultSeqSymbol = 3
     nMultLength = nMultNumber = 4
     nMultSymbol = 6
     nTmpAlphaUC = nTmpAlphaLC = nTmpNumber = nTmpSymbol = ""
-    sAlphaUC = sAlphaLC = sNumber = sSymbol = sMidChar = sRequirements = sAlphasOnly = sNumbersOnly = sRepChar = sConsecAlphaUC = sConsecAlphaLC = sConsecNumber = sSeqAlpha = sSeqNumber = sSeqSymbol = "0"
+    sAlphaUC = sAlphaLC = sNumber = sSymbol = sMidChar = sRequirements = sAlphasOnly = sNumbersOnly = sRepChar = sConsecAlphaUC = sConsecAlphaLC = sConsecNumber = sSeqAlpha = sSeqNumber = sSeqSymbol = 0
     sAlphas = "abcdefghijklmnopqrstuvwxyz"
     sNumerics = "01234567890"
     sSymbols = ")!@#$%^&*()"
     nMinPwdLen = 8
     nMinReqChars = 4
-
-    # check argv exists or not
-    pwd = sys.argv[1]
+    #  pwd = getpass()
+    pwd = 'pa@sswordX!12'
     nLength = len(pwd)
-    nScore = nLength * nMultLength
     arrPwd = list(pwd)
     arrPwdLen = len(arrPwd)
+    sLength = nLength * nMultLength
+    nScore = nLength * nMultLength
 
     # Check Uppercase, Lowercase, Numeric and Symbol
     for a in range(0, arrPwdLen):
@@ -115,63 +126,63 @@ def main():
 
     # General point assignment
     if nAlphaUC > 0 and nAlphaUC < nLength:
-        nScore += (nLength - nAlphaUC) * 2
-        sAlphaUC = "+" + str((nLength - nAlphaUC) * 2)
+        nScore += (nLength - nAlphaUC) * nMultAlphaUC
+        sAlphaUC = (nLength - nAlphaUC) * nMultAlphaUC
 
     if nAlphaLC > 0 and nAlphaLC < nLength:
-        nScore += (nLength - nAlphaLC) * 2
-        sAlphaLC = "+" + str((nLength - nAlphaLC) * 2)
+        nScore += (nLength - nAlphaLC) * nMultAlphaLC
+        sAlphaLC = (nLength - nAlphaLC) * nMultAlphaLC
 
     if nNumber > 0 and nNumber < nLength:
         nScore += nNumber * nMultNumber
-        sNumber = "+" + str(nNumber * nMultNumber)
+        sNumber = nNumber * nMultNumber
 
     if nSymbol > 0:
         nScore += nSymbol * nMultSymbol
-        sSymbol = "+" + str(nSymbol * nMultSymbol)
+        sSymbol = nSymbol * nMultSymbol
 
     if nMidChar > 0:
         nScore += nMidChar * nMultMidChar
-        sMidChar = "+" + str(nMidChar * nMultMidChar)
+        sMidChar = nMidChar * nMultMidChar
 
     # Point deductions
     if (nAlphaLC > 0 or nAlphaUC > 0) and nSymbol == 0 and nNumber == 0:
         nScore -= nLength
         nAlphasOnly = nLength
-        sAlphasOnly = "-" + str(nLength)
+        sAlphasOnly = nLength * -1
 
     if nAlphaLC == 0 and nAlphaUC == 0 and nSymbol == 0 and nNumber == 0:
         nScore -= nLength
         nNumbersOnly = nLength
-        sNumbersOnly = "-" + str(nLength)
+        sNumbersOnly = nLength * -1
 
     if nRepChar > 0:
         nScore -= nRepInc
-        sRepChar = "-"+str(nRepInc)
+        sRepChar = nRepInc * -1
 
     if nConsecAlphaUC > 0:
         nScore -= nConsecAlphaUC * nMultConsecAlphaUC
-        sConsecAlphaUC = "-" + str(nConsecAlphaUC * nMultConsecAlphaUC)
+        sConsecAlphaUC = nConsecAlphaUC * nMultConsecAlphaUC * -1
 
     if nConsecAlphaLC > 0:
         nScore -= nConsecAlphaLC * nMultConsecAlphaLC
-        sConsecAlphaLC = "-" + str(nConsecAlphaLC * nMultConsecAlphaLC)
+        sConsecAlphaLC = nConsecAlphaLC * nMultConsecAlphaLC * -1
 
     if nConsecNumber > 0:
         nScore -= nConsecNumber * nMultConsecNumber
-        sConsecNumber = "-" + str(nConsecNumber * nMultConsecNumber)
+        sConsecNumber = nConsecNumber * nMultConsecNumber * -1
 
     if nSeqAlpha > 0:
         nScore -= nSeqAlpha * nMultSeqAlpha
-        sSeqAlpha = "-" + str(nSeqAlpha * nMultSeqAlpha)
+        sSeqAlpha = nSeqAlpha * nMultSeqAlpha * -1
 
     if nSeqNumber > 0:
         nScore -= nSeqNumber * nMultSeqNumber
-        sSeqNumber = "-" + str(nSeqNumber * nMultSeqNumber)
+        sSeqNumber = nSeqNumber * nMultSeqNumber * -1
 
     if nSeqSymbol > 0:
         nScore -= nSeqSymbol * nMultSeqSymbol
-        sSeqSymbol = "-" + str(nSeqSymbol * nMultSeqSymbol)
+        sSeqSymbol = nSeqSymbol * nMultSeqSymbol * -1
 
     # Determine if mandatory requirements have been met
     arrChars = [nAlphaUC, nAlphaLC, nNumber, nSymbol]
@@ -182,10 +193,34 @@ def main():
     if nLength >= nMinPwdLen:
         nRequirements += 1
         if nRequirements >= nMinReqChars:
-            nScore += nRequirements * 2
-            sRequirements = "+" + str(nRequirements * 2)
+            nScore += nRequirements * nMultRequirements
+            sRequirements = nRequirements * nMultRequirements
+
+    table = Table()
+    table.add_column("", style="cyan", no_wrap=True)
+    table.add_column("Rate", style="white")
+    table.add_column("Count", justify="right", style="yellow")
+    table.add_column("Bonus", justify="right", style="green")
+    table.add_row("Number of Characters", "+(n*" + str(nMultLength) + ")", str(nLength), setBonuscolor(sLength))
+    table.add_row("Uppercase Letters", "+((len-n)*" + str(nMultAlphaUC) + ")", str(nAlphaUC), setBonuscolor(sAlphaUC))
+    table.add_row("Lowercase Letters", "+((len-n)*" + str(nMultAlphaLC) + ")", str(nAlphaLC), setBonuscolor(sAlphaLC))
+    table.add_row("Numbers", "+(n*" + str(nMultNumber) + ")", str(nNumber), setBonuscolor(sNumber))
+    table.add_row("Symbols", "+(n*" + str(nMultSymbol) + ")", str(nSymbol), setBonuscolor(sSymbol))
+    table.add_row("Middle Numbers of Symbols", "+(n*" + str(nMultMidChar) + ")", str(nMidChar), setBonuscolor(sMidChar))
+    table.add_row("Requirements", "+(n*" + str(nMultRequirements) + ")", str(nRequirements), setBonuscolor(sRequirements))
+    table.add_row("Letters Only", "-n", str(nAlphasOnly), setBonuscolor(sAlphasOnly))
+    table.add_row("Numbers Only", "-n", str(nNumbersOnly), setBonuscolor(sNumbersOnly))
+    table.add_row("Repeat Characters (Case Insensitive)", "-", str(nRepChar), setBonuscolor(sRepChar))
+    table.add_row("Consecutive Uppercase Letters", "-(n*" + str(nMultConsecAlphaUC) + ")", str(nConsecAlphaUC), setBonuscolor(sConsecAlphaUC))
+    table.add_row("Consecutive Lowercase Letters", "-(n*" + str(nMultConsecAlphaLC) + ")", str(nConsecAlphaLC), setBonuscolor(sConsecAlphaLC))
+    table.add_row("Consecutive Numbers", "-(n*" + str(nMultConsecNumber) + ")", str(nConsecNumber), setBonuscolor(sConsecNumber))
+    table.add_row("Sequential Letters (3+)", "-(n*" + str(nMultSeqAlpha) + ")", str(nSeqAlpha), setBonuscolor(sSeqAlpha))
+    table.add_row("Sequential Numbers (3+)", "-(n*" + str(nMultSeqNumber) + ")", str(nSeqNumber), setBonuscolor(sSeqNumber))
+    table.add_row("Sequential Symbols (3+)", "-(n*" + str(nMultSeqSymbol) + ")", str(nSeqSymbol), setBonuscolor(sSeqSymbol))
 
     print(calcResult(nScore))
+    console = Console()
+    console.print(table)
 
 
 if __name__ == '__main__':
