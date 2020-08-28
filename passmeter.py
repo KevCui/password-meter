@@ -82,46 +82,27 @@ def printResult(dict, scoreOnly):
         printTable(dict)
 
 
-def countAlpha(dict, password, key, pattern):
+def count(dict, password, key, pattern):
     tmp = ""
     arrPwd = list(password)
     for a in range(0, dict["length"]["count"]):
         if re.match(pattern, arrPwd[a]):
+            if key == "number" or key == "symbol" \
+                    and a > 0 and a < (dict["length"]["count"] - 1):
+                dict["midChar"]["count"] += 1
             if tmp != "":
                 if (tmp + 1) == a:
-                    dict["consec" + key[:1].capitalize() + key[1:]]["count"] += 1
+                    consecKey = "consec" + key[:1].capitalize() + key[1:]
+                    if consecKey in dict.keys():
+                        dict[consecKey]["count"] += 1
             tmp = a
             dict[key]["count"] += 1
 
-    if dict[key]["count"] > 0 \
-            and dict[key]["count"] < dict["length"]["count"]:
-        dict[key]["mult"] = 2
-        dict[key]["score"] = (dict["length"]["count"] - dict[key]["count"]) * dict[key]["mult"]
-
-
-def countNumber(dict, password):
-    tmp = ""
-    arrPwd = list(password)
-    arrPwdLen = len(arrPwd)
-    for a in range(0, arrPwdLen):
-        if re.match(r'[0-9]', arrPwd[a]):
-            if a > 0 and a < (arrPwdLen - 1):
-                dict["midChar"]["count"] += 1
-            if tmp != "":
-                if (tmp + 1) == a:
-                    dict["consecNumber"]["count"] += 1
-            tmp = a
-            dict["number"]["count"] += 1
-
-
-def countSymbol(dict, password):
-    arrPwd = list(password)
-    arrPwdLen = len(arrPwd)
-    for a in range(0, arrPwdLen):
-        if re.match(r'[^a-zA-Z0-9_]', arrPwd[a]):
-            if a > 0 and a < (arrPwdLen - 1):
-                dict["midChar"]["count"] += 1
-            dict["symbol"]["count"] += 1
+    if key == "alphaLC" or key == "alphaUC":
+        if dict[key]["count"] > 0 \
+                and dict[key]["count"] < dict["length"]["count"]:
+            dict[key]["mult"] = 2
+            dict[key]["score"] = (dict["length"]["count"] - dict[key]["count"]) * dict[key]["mult"]
 
 
 def countRepChar(dict, password):
@@ -144,8 +125,8 @@ def countRepChar(dict, password):
 def countSeqAlpha(dict, password):
     alphas = "abcdefghijklmnopqrstuvwxyz"
     for s in range(0, 24):
-        fwd = alphas[s:s+3]
-        rev = fwd[::-1]
+        fwd = alphas[s: s+3]
+        rev = fwd[:: -1]
         if password.lower().find(fwd) != -1 \
                 or password.lower().find(rev) != -1:
             dict["seqAlpha"]["count"] += 1
@@ -154,8 +135,8 @@ def countSeqAlpha(dict, password):
 def countSeqNumber(dict, password):
     numerics = "01234567890"
     for s in range(0, 9):
-        fwd = numerics[s:s+3]
-        rev = fwd[::-1]
+        fwd = numerics[s: s+3]
+        rev = fwd[:: -1]
         if password.lower().find(fwd) != -1 \
                 or password.lower().find(rev) != -1:
             dict["seqNumber"]["count"] += 1
@@ -164,8 +145,8 @@ def countSeqNumber(dict, password):
 def countSeqSymbol(dict, password):
     symbols = ")!@#$%^&*()"
     for s in range(0, 9):
-        fwd = symbols[s:s+3]
-        rev = fwd[::-1]
+        fwd = symbols[s: s+3]
+        rev = fwd[:: -1]
         if password.lower().find(fwd) != -1 \
                 or password.lower().find(rev) != -1:
             dict["seqSymbol"]["count"] += 1
@@ -225,10 +206,10 @@ def main():
         "seqSymbol": {"count": 0, "mult": -3, "score": 0, "text": "Sequential Symbols (3+)", "rate": "-(n*3)"}
     }
 
-    countAlpha(dictRule, pwd, "alphaUC", r'[A-Z]')
-    countAlpha(dictRule, pwd, "alphaLC", r'[a-z]')
-    countNumber(dictRule, pwd)
-    countSymbol(dictRule, pwd)
+    count(dictRule, pwd, "alphaUC", r'[A-Z]')
+    count(dictRule, pwd, "alphaLC", r'[a-z]')
+    count(dictRule, pwd, "number", r'[0-9]')
+    count(dictRule, pwd, "symbol", r'[^a-zA-Z0-9_]')
     countRequirements(dictRule)
 
     countAlphasOnly(dictRule)
