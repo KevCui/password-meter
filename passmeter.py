@@ -13,7 +13,10 @@ import argparse
 def parseArgs():
     parser = argparse.ArgumentParser()
     parser.add_argument('-p', '--password', nargs=1, help='Password')
-    parser.add_argument('-s', '--score-only', action='store_true', help='Only show score number as output')
+    parser.add_argument('-s', '--score-only',
+                        action='store_true',
+                        help='Only show score number as output'
+                        )
     return parser.parse_args()
 
 
@@ -41,7 +44,12 @@ def printTable(dict):
     table.add_column("Count", justify="right", style="yellow")
     table.add_column("Bonus", justify="right", style="green")
     for k in dict.keys():
-        table.add_row(dict[k]["text"], dict[k]["rate"], str(dict[k]["count"]), setBonuscolor(dict[k]['score']))
+        table.add_row(
+            dict[k]["text"],
+            dict[k]["rate"],
+            str(dict[k]["count"]),
+            setBonuscolor(dict[k]['score'])
+        )
     console = Console()
     console.print(table)
 
@@ -74,40 +82,21 @@ def printResult(dict, scoreOnly):
         printTable(dict)
 
 
-def countAlphaUC(dict, password):
+def countAlpha(dict, password, key, pattern):
     tmp = ""
     arrPwd = list(password)
-    arrPwdLen = len(arrPwd)
-    for a in range(0, arrPwdLen):
-        if re.match(r'[A-Z]', arrPwd[a]):
+    for a in range(0, dict["length"]["count"]):
+        if re.match(pattern, arrPwd[a]):
             if tmp != "":
                 if (tmp + 1) == a:
-                    dict["consecAlphaUC"]["count"] += 1
+                    dict["consec" + key[:1].capitalize() + key[1:]]["count"] += 1
             tmp = a
-            dict["alphaUC"]["count"] += 1
+            dict[key]["count"] += 1
 
-    if dict["alphaUC"]["count"] > 0 \
-            and dict["alphaUC"]["count"] < dict["length"]["count"]:
-        dict["alphaUC"]["mult"] = 2
-        dict["alphaUC"]["score"] = (dict["length"]["count"] - dict["alphaUC"]["count"]) * dict["alphaUC"]["mult"]
-
-
-def countAlphaLC(dict, password):
-    tmp = ""
-    arrPwd = list(password)
-    arrPwdLen = len(arrPwd)
-    for a in range(0, arrPwdLen):
-        if re.match(r'[a-z]', arrPwd[a]):
-            if tmp != "":
-                if (tmp + 1) == a:
-                    dict["consecAlphaLC"]["count"] += 1
-            tmp = a
-            dict["alphaLC"]["count"] += 1
-
-    if dict["alphaLC"]["count"] > 0 \
-            and dict["alphaLC"]["count"] < dict["length"]["count"]:
-        dict["alphaLC"]["mult"] = 2
-        dict["alphaLC"]["score"] = (dict["length"]["count"] - dict["alphaLC"]["count"]) * dict["alphaLC"]["mult"]
+    if dict[key]["count"] > 0 \
+            and dict[key]["count"] < dict["length"]["count"]:
+        dict[key]["mult"] = 2
+        dict[key]["score"] = (dict["length"]["count"] - dict[key]["count"]) * dict[key]["mult"]
 
 
 def countNumber(dict, password):
@@ -240,10 +229,10 @@ def main():
     dictRule["length"]["count"] = len(pwd)
 
     # Check Uppercase
-    countAlphaUC(dictRule, pwd)
+    countAlpha(dictRule, pwd, "alphaUC", r'[A-Z]')
 
     # Count Lowercase
-    countAlphaLC(dictRule, pwd)
+    countAlpha(dictRule, pwd, "alphaLC", r'[a-z]')
 
     # Count Numeric
     countNumber(dictRule, pwd)
