@@ -176,12 +176,10 @@ def setBonuscolor(score):
 
 def checkWeakPassword(password):
     passwordlist = "./commonpassword.list"
-    if not os.path.isfile(passwordlist):
-        return
-    if any(password in s for s in open(passwordlist).readlines()):
-        print("Common password in " + passwordlist)
-        sys.exit(1)
-    return
+    if os.path.isfile(passwordlist):
+        if any(password in s for s in open(passwordlist).readlines()):
+            print("Common password in " + passwordlist)
+            sys.exit(1)
 
 
 def main():
