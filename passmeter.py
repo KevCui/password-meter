@@ -83,7 +83,6 @@ def printResult(dict, option):
     elif option.complexity_only:
         print(complexity)
     else:
-        print(complexity)
         print("Score: " + str(score) + "%")
         print("Complexity: " + complexity)
         printTable(dict)
