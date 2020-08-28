@@ -102,10 +102,10 @@ def count(dict, password, key, pattern):
         if dict[key]["count"] > 0 \
                 and dict[key]["count"] < dict["length"]["count"]:
             if key == "number":
-                dict[key]["mult"] = 3
+                dict[key]["mult"] = 4
             else:
                 dict[key]["mult"] = 2
-            dict[key]["score"] = (dict["length"]["count"] - dict[key]["count"]) * dict[key]["mult"]
+                dict[key]["score"] = (dict["length"]["count"] - dict[key]["count"]) * dict[key]["mult"]
 
 
 def countRepChar(dict, password):
