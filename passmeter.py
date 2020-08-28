@@ -207,7 +207,7 @@ def setBonuscolor(score):
 def main():
     pwd = getPassword(parseArgs())
     dictRule = {
-        "length": {"count": 0, "mult": 4, "score": 0, "text": "Number of Characters", "rate": "+(n*4)"},
+        "length": {"count": len(pwd), "mult": 4, "score": 0, "text": "Number of Characters", "rate": "+(n*4)"},
         "alphaUC": {"count": 0, "mult": 0, "score": 0, "text": "Uppercase Letters", "rate": "+((len-n)*2)"},
         "alphaLC": {"count": 0, "mult": 0, "score": 0, "text": "Lowercase Letters", "rate": "+((len-n)*2)"},
         "number": {"count": 0, "mult": 4, "score": 0, "text": "Numbers", "rate": "+(n*4)"},
@@ -225,43 +225,19 @@ def main():
         "seqSymbol": {"count": 0, "mult": -3, "score": 0, "text": "Sequential Symbols (3+)", "rate": "-(n*3)"}
     }
 
-    # Count password length
-    dictRule["length"]["count"] = len(pwd)
-
-    # Check Uppercase
     countAlpha(dictRule, pwd, "alphaUC", r'[A-Z]')
-
-    # Count Lowercase
     countAlpha(dictRule, pwd, "alphaLC", r'[a-z]')
-
-    # Count Numeric
     countNumber(dictRule, pwd)
-
-    # Count Symbol
     countSymbol(dictRule, pwd)
-
-    # Count requirements
     countRequirements(dictRule)
 
-    # Count deduction points of letters only
     countAlphasOnly(dictRule)
-
-    # Count deduction points of numbers only
     countNumbersOnly(dictRule)
-
-    # Count deduction points of repeat characters
     countRepChar(dictRule, pwd)
-
-    # Count deduction points of sequential letters (forward and reverse)
     countSeqAlpha(dictRule, pwd)
-
-    # Count deduction points of sequential numbers (forward and reverse)
     countSeqNumber(dictRule, pwd)
-
-    # Count deduction points of sequential symbols (forward and reverse)
     countSeqSymbol(dictRule, pwd)
 
-    # Calculate final score
     calcScore(dictRule)
     printResult(dictRule, parseArgs().score_only)
 
