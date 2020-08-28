@@ -29,13 +29,15 @@
 ## Usage
 
 ```
-usage: passmeter.py [-h] [-p PASSWORD] [-s]
+usage: passmeter.py [-h] [-p PASSWORD] [-s] [-c]
 
 optional arguments:
   -h, --help            show this help message and exit
   -p PASSWORD, --password PASSWORD
                         Password
   -s, --score-only      Only show score number as output
+  -c, --complexity-only
+                        Only show complexity text as output
 ```
 
 ### Example

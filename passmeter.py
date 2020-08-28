@@ -17,6 +17,10 @@ def parseArgs():
                         action='store_true',
                         help='Only show score number as output'
                         )
+    parser.add_argument('-c', '--complexity-only',
+                        action='store_true',
+                        help='Only show complexity text as output'
+                        )
     return parser.parse_args()
 
 
@@ -54,7 +58,7 @@ def printTable(dict):
     console.print(table)
 
 
-def printResult(dict, scoreOnly):
+def printResult(dict, option):
     score = 0
     complexity = "unknown"
     for k in dict.keys():
@@ -73,8 +77,10 @@ def printResult(dict, scoreOnly):
         score = min(score, 100)
         complexity = "Very Strong"
 
-    if scoreOnly:
+    if option.score_only:
         print(score)
+    elif option.complexity_only:
+        print(complexity)
     else:
         print(complexity)
         print("Score: " + str(score) + "%")
@@ -202,7 +208,7 @@ def main():
     countSeq(dictRule, pwd, "seqSymbol", ")!@#$%^&*()")
 
     calcScore(dictRule)
-    printResult(dictRule, parseArgs().score_only)
+    printResult(dictRule, parseArgs())
 
 
 if __name__ == '__main__':
