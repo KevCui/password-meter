@@ -181,8 +181,7 @@ def checkWeakPassword(password):
     if any(password in s for s in open(passwordlist).readlines()):
         print("Common password in " + passwordlist)
         sys.exit(1)
-    else:
-        return
+    return
 
 
 def main():
