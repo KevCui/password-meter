@@ -9,6 +9,7 @@
 - [Usage](#usage)
   - [Example](#example)
 - [Credits](#credits)
+- [One more thing](#one-more-thing)
 
 ## Features
 
@@ -76,3 +77,7 @@ Password:
 ## Credits
 
 The original code of this project is ported from web app [Password Meter](http://www.passwordmeter.com/)
+
+## One more thing
+
+Want to generate very strong passwords? Check this project :point_right: [passgen](https://github.com/KevCui/passgen)
