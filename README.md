@@ -8,6 +8,7 @@
 - [Dependency](#dependency)
 - [Usage](#usage)
   - [Example](#example)
+  - [Common password list](#common-password-list)
 - [Credits](#credits)
 - [One more thing](#one-more-thing)
 
@@ -74,6 +75,15 @@ Although `-p` exists as an option, it's recommended to avoid using it with your 
 ```bash
 ~$ ./passmeter.py
 Password:
+```
+
+### Common password list
+
+`./passmeter.py` checks password against `./commonpassword.list`. Once the entered password is found in the list, all other checks will be aborted. The default integrated list is fetched from [danielmiessler/SecLists](https://github.com/danielmiessler/SecLists/blob/master/Passwords/Common-Credentials/10-million-password-list-top-1000.txt). Feel free to customize `./commonpassword.list` according to your needs, put any passwords in the list one per line.
+
+```bash
+~$ ./passmeter.py -p 123456
+Common password in ./commonpassword.list
 ```
 
 ## Credits

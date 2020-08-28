@@ -5,6 +5,7 @@ from rich.console import Console
 from rich.table import Table
 from rich.text import Text
 import sys
+import os
 import re
 import math
 import argparse
@@ -173,8 +174,21 @@ def setBonuscolor(score):
     return Text("0", style="white")
 
 
+def checkWeakPassword(password):
+    passwordlist = "./commonpassword.list"
+    if not os.path.isfile(passwordlist):
+        return
+    if any(password in s for s in open(passwordlist).readlines()):
+        print("Common password in " + passwordlist)
+        sys.exit(1)
+    else:
+        return
+
+
 def main():
     pwd = getPassword(parseArgs())
+    checkWeakPassword(pwd)
+
     dictRule = {
         "length": {"count": len(pwd), "mult": 4, "score": 0, "text": "Number of Characters", "rate": "+(n*4)"},
         "alphaUC": {"count": 0, "mult": 0, "score": 0, "text": "Uppercase Letters", "rate": "+((len-n)*2)"},
