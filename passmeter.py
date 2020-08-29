@@ -173,7 +173,7 @@ def setBonuscolor(score):
     return Text("0", style="white")
 
 
-def checkWeakPassword(password):
+def checkCommonPassword(password):
     passwordlist = "./commonpassword.list"
     if os.path.isfile(passwordlist):
         if any(password in s for s in open(passwordlist).readlines()):
@@ -183,7 +183,7 @@ def checkWeakPassword(password):
 
 def main():
     pwd = getPassword(parseArgs())
-    checkWeakPassword(pwd)
+    checkCommonPassword(pwd)
 
     dictRule = {
         "length": {"count": len(pwd), "mult": 4, "score": 0, "text": "Number of Characters", "rate": "+(n*4)"},
