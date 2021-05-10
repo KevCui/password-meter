@@ -24,7 +24,7 @@
 - [Rich](https://github.com/willmcgugan/rich)
 
 ```bash
-~$ pip install rich
+$ pip install rich
 ```
 
 ## Usage
@@ -44,7 +44,7 @@ optional arguments:
 ### Example
 
 ```
-~$ ./passmeter.py -p thisismypassword
+$ ./passmeter.py -p thisismypassword
 Very Weak
 Score: 15%
 Complexity: Very Weak
@@ -73,7 +73,7 @@ Complexity: Very Weak
 Although `-p` exists as an option, it's recommended to avoid using it with your real password. The reason is that Shell commands including all paraders are logged in Shell command execution history, which might cause the trouble to expose your real password. Instead, run `./passmeter.py` and enter password in prompt:
 
 ```bash
-~$ ./passmeter.py
+$ ./passmeter.py
 Password:
 ```
 
@@ -82,7 +82,7 @@ Password:
 `./passmeter.py` checks password against `./commonpassword.list`. Once the entered password is found in the list, all other checks will be aborted. The default integrated list is fetched from [danielmiessler/SecLists](https://github.com/danielmiessler/SecLists/blob/master/Passwords/Common-Credentials/10-million-password-list-top-1000.txt). Feel free to customize `./commonpassword.list` according to your needs, put any passwords in the list one per line.
 
 ```bash
-~$ ./passmeter.py -p 123456
+$ ./passmeter.py -p 123456
 Common password in ./commonpassword.list
 ```
 
