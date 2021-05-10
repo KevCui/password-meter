@@ -4,7 +4,6 @@ from getpass import getpass
 from rich.console import Console
 from rich.table import Table
 from rich.text import Text
-import sys
 import os
 import re
 import math
@@ -32,7 +31,7 @@ def getPassword(arguments):
         try:
             return getpass()
         except KeyboardInterrupt:
-            sys.exit(1)
+            exit(1)
 
 
 def calcScore(dict):
@@ -178,7 +177,7 @@ def checkCommonPassword(password):
     if os.path.isfile(passwordlist):
         if any(password in s for s in open(passwordlist).readlines()):
             print("Common password in " + passwordlist)
-            sys.exit(1)
+            exit(1)
 
 
 def main():
